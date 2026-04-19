@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Journey Studio | Reservasi Online</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { gold: { 400: '#D4AF37', 500: '#C5A059', 600: '#AA8845' }, charcoal: { 800: '#2D2D2D', 900: '#1A1A1A' }, cream: '#FCFAF8' },
+          fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['"Playfair Display"', 'serif'] },
+          animation: { 'fade-in-up': 'fadeInUp 0.6s ease-out forwards' },
+          keyframes: { fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { background-color: #FCFAF8; }
+    .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.3); }
+    input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 4px rgba(197, 160, 89, 0.15); border-color: #C5A059; }
+    .premium-shadow { box-shadow: 0 10px 40px -10px rgba(0,0,0,0.06); }
+  </style>
+</head>
+<body class="text-charcoal-800 font-sans min-h-screen pb-24 selection:bg-gold-500 selection:text-white">
+
+  <!-- Navbar Simple -->
+  <nav class="glass sticky top-0 z-40 transition-all duration-300 border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col justify-center items-center py-4 sm:py-5">
+        <div class="flex flex-col items-center justify-center shrink-0 w-full">
+          <span class="font-serif font-bold text-2xl sm:text-3xl tracking-widest text-charcoal-900 uppercase leading-none" id="brandLogo"></span>
+          <span id="brandTagline" class="text-[8px] sm:text-[10px] font-bold text-gray-400 tracking-[0.25em] uppercase mt-2 text-center"></span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Toast Notifikasi -->
+  <div id="toast" class="fixed top-24 right-4 sm:right-8 transform translate-x-[150%] transition-transform duration-500 z-50 flex items-center p-4 mb-4 text-white rounded-xl shadow-2xl backdrop-blur-md" role="alert">
+    <i id="toast-icon" class="fa-solid mr-3 text-lg"></i>
+    <div id="toast-msg" class="text-sm font-medium tracking-wide"></div>
+  </div>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 md:py-14">
+    <!-- Container Form -->
+    <div id="bookingFormContainer" class="animate-fade-in-up">
+      <div class="max-w-3xl mx-auto bg-white rounded-[2rem] premium-shadow overflow-hidden border border-gray-100 relative">
+        <div class="relative bg-charcoal-900 p-8 sm:p-10 md:p-12 text-center overflow-hidden">
+          <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+          <div class="relative z-10">
+            <h2 class="font-serif text-3xl sm:text-4xl md:text-5xl text-gold-400 mb-3 drop-shadow-sm">Abadikan Momen Anda</h2>
+            <p class="text-gray-300 text-xs sm:text-sm font-light tracking-wide max-w-lg mx-auto">Silakan lengkapi data di bawah ini untuk mereservasi tanggal eksklusif Anda bersama tim kami.</p>
+          </div>
+        </div>
+        
+        <form id="bookingForm" class="p-6 sm:p-8 md:p-12 space-y-6 sm:space-y-8" onsubmit="submitForm(event)">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 md:gap-8">
+            <div class="space-y-2">
+              <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Nama Pasangan</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i class="fa-solid fa-heart text-gray-400"></i></div>
+                <input type="text" id="bf_nama" required class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none transition-all text-sm font-semibold text-charcoal-800 placeholder-gray-400" placeholder="Romeo & Juliet">
+              </div>
+            </div>
+            <div class="space-y-2">
+              <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">No WhatsApp</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i class="fa-brands fa-whatsapp text-green-500"></i></div>
+                <input type="tel" id="bf_whatsapp" required class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none transition-all text-sm font-semibold text-charcoal-800 placeholder-gray-400" placeholder="0812xxxxxx">
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 md:gap-8">
+            <div class="space-y-2">
+              <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Email Klien</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i class="fa-regular fa-envelope text-gray-400"></i></div>
+                <input type="email" id="bf_email" required class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none transition-all text-sm font-semibold text-charcoal-800 placeholder-gray-400" placeholder="hello@pasangan.com">
+              </div>
+            </div>
+            <div class="space-y-2">
+              <div class="flex justify-between items-center ml-1 mb-1">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider">Pilihan Paket</label>
+                <a href="#" id="client_pricelist_link" target="_blank" style="display:none;" class="text-[10px] text-gold-600 hover:text-gold-500 font-bold uppercase tracking-wider transition-colors items-center bg-gold-50 hover:bg-gold-100 px-2.5 py-1 rounded-md border border-gold-200 shadow-sm outline-none"><i class="fa-solid fa-file-pdf mr-1.5"></i> Pricelist</a>
+              </div>
+              <select id="paket_dropdown" required onchange="updatePrices()" class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none transition-all text-sm font-semibold text-charcoal-800 cursor-pointer appearance-none">
+                <option value="" disabled selected>-- Pilih Paket Eksklusif --</option>
+              </select>
+              <div id="paket_deskripsi_tampil" class="text-xs text-gray-500 mt-2 hidden bg-gray-50 p-4 rounded-xl border border-gray-200 leading-relaxed shadow-sm"></div>
+            </div>
+          </div>
+
+          <div class="space-y-3 pt-2" id="addonSectionWrapper" style="display:none;">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Layanan Tambahan (Opsional)</label>
+            <div id="addonContainer" class="space-y-3">
+              <div class="flex flex-col sm:flex-row gap-3">
+                <select class="flex-1 w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none transition-all text-sm font-semibold text-charcoal-800 cursor-pointer appearance-none addon-dropdown" onchange="updatePrices()">
+                  <option value="" selected>-- Tanpa Layanan Tambahan --</option>
+                </select>
+                <button type="button" onclick="addAddonField()" class="w-full sm:w-auto px-6 py-3 sm:py-0 bg-charcoal-900 text-gold-400 rounded-xl hover:bg-black active:scale-95 transition-all outline-none shadow-md" title="Tambah Layanan">
+                  <i class="fa-solid fa-plus mr-2 sm:mr-0"></i><span class="sm:hidden">Tambah Layanan</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-5 sm:space-y-6 pt-2">
+            <div class="space-y-2">
+              <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Alamat Lengkap</label>
+              <textarea id="bf_alamat" required class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none transition-all text-sm font-medium text-charcoal-800 placeholder-gray-400" rows="3" placeholder="Tuliskan alamat lengkap lokasi utama acara..."></textarea>
+            </div>
+            <div class="space-y-2">
+              <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Tautan Google Maps</label>
+              <div class="flex flex-col sm:flex-row gap-3">
+                <div class="relative flex-1 w-full">
+                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i class="fa-solid fa-link text-gray-400"></i></div>
+                  <input type="url" id="link_maps_input" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none transition-all text-sm font-medium text-charcoal-800 placeholder-gray-400" placeholder="https://maps.google.com/...">
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                  <button type="button" onclick="window.open('https://maps.google.com','_blank')" class="flex-1 sm:flex-none px-5 py-3.5 bg-white text-charcoal-800 rounded-xl hover:bg-gray-50 active:scale-95 transition-all text-xs font-bold uppercase tracking-wider border border-gray-200 shadow-sm outline-none whitespace-nowrap">
+                    <i class="fa-solid fa-map-location-dot"></i> <span class="ml-1.5 hidden md:inline">Buka Maps</span>
+                  </button>
+                  <button type="button" id="btnLocation" onclick="getCurrentLocation()" class="px-5 py-3.5 bg-white text-blue-600 rounded-xl hover:bg-blue-50 active:scale-95 transition-all text-xs font-bold uppercase tracking-wider border border-gray-200 shadow-sm outline-none" title="Gunakan Lokasi Saat Ini">
+                    <i class="fa-solid fa-location-crosshairs text-lg"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-6 border-t border-gray-100">
+            <div class="space-y-2">
+              <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1">Total Biaya</label>
+              <input type="text" id="total_harga" readonly class="w-full px-4 py-3.5 bg-gray-100 border border-transparent text-gray-500 rounded-xl outline-none font-bold cursor-not-allowed text-center text-sm" placeholder="Rp 0">
+            </div>
+            <div class="space-y-2">
+              <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1">Down Payment (30%)</label>
+              <input type="text" id="dp_harga" readonly class="w-full px-4 py-3.5 bg-gold-50 border border-gold-200 text-gold-700 rounded-xl outline-none font-bold cursor-not-allowed text-center text-sm" placeholder="Rp 0">
+            </div>
+            <div class="space-y-2">
+              <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1">Sisa Pelunasan</label>
+              <input type="text" id="sisa_harga" readonly class="w-full px-4 py-3.5 bg-gray-100 border border-transparent text-gray-500 rounded-xl outline-none font-bold cursor-not-allowed text-center text-sm" placeholder="Rp 0">
+            </div>
+          </div>
+
+          <div class="space-y-3 pt-6 border-t border-gray-100">
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Penjadwalan Rangkaian Acara</label>
+            <div id="dateContainer" class="space-y-3">
+              <div class="flex flex-col sm:flex-row gap-3">
+                <select required class="flex-1 w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none transition-all text-sm font-semibold text-charcoal-800 cursor-pointer appearance-none event-dropdown">
+                  <option value="" disabled selected>-- Pilih Jenis Acara --</option>
+                </select>
+                <div class="flex gap-3 w-full sm:w-auto flex-1 sm:flex-none">
+                  <input type="date" required class="date-input flex-1 w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none transition-all text-sm font-semibold text-charcoal-800">
+                  <button type="button" onclick="addDateField()" class="px-5 sm:px-6 bg-charcoal-900 text-gold-400 rounded-xl hover:bg-black active:scale-95 transition-all outline-none shadow-md" title="Tambah Tanggal">
+                    <i class="fa-solid fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-8">
+            <button type="submit" id="submitBtn" class="w-full bg-charcoal-900 hover:bg-black text-gold-400 font-bold tracking-widest uppercase py-4 md:py-5 rounded-2xl active:scale-[0.98] transition-all premium-shadow flex justify-center items-center outline-none group">
+              <span class="group-hover:-translate-y-0.5 transition-transform duration-300">Ajukan Reservasi Sekarang</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Container Sukses -->
+    <div id="paymentSuccessContainer" class="hidden animate-fade-in-up max-w-3xl mx-auto bg-white rounded-[2rem] premium-shadow overflow-hidden border border-gray-100">
+      <div class="bg-green-500 relative p-8 sm:p-10 md:p-12 text-center overflow-hidden">
+        <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+        <div class="relative z-10 text-white">
+          <div class="w-16 h-16 md:w-20 md:h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 md:mb-5 premium-shadow">
+             <i class="fa-solid fa-check text-3xl md:text-4xl text-green-500"></i>
+          </div>
+          <h2 class="font-serif text-3xl md:text-4xl font-bold mb-2">Reservasi Berhasil!</h2>
+          <p class="text-green-50 text-xs sm:text-sm mb-5 sm:mb-6 font-light tracking-wide px-4">Formulir eksklusif Anda telah tersimpan di sistem kami.</p>
+          <div class="inline-block bg-green-600/60 backdrop-blur-md border border-green-400/50 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl shadow-inner">
+            <span class="text-[10px] uppercase tracking-widest text-green-100 block mb-1">ID Booking</span>
+            <span id="pay_booking_id" class="font-bold text-xl sm:text-2xl tracking-[0.25em]">IDBOOKING</span>
+          </div>
+        </div>
+      </div>
+      <div class="p-6 sm:p-8 md:p-12 text-center space-y-6 sm:space-y-8">
+        <p class="text-xs sm:text-sm text-gray-500 leading-relaxed max-w-md mx-auto">Silakan lakukan pembayaran <b>Down Payment (DP)</b> untuk mengunci jadwal sesuai rincian di bawah.</p>
+        
+        <div class="bg-white border border-gray-200 rounded-3xl sm:rounded-[2rem] p-6 sm:p-8 premium-shadow relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-full h-1 bg-gold-400"></div>
+          <div class="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Total DP</div>
+          <div id="pay_dp_amount" class="text-3xl sm:text-4xl font-serif font-bold text-charcoal-900 mb-6 sm:mb-8">Rp 0</div>
+          
+          <div class="border-t border-gray-100 pt-5 sm:pt-6 text-left bg-gray-50 -mx-6 -mb-6 p-6 sm:-mx-8 sm:-mb-8 sm:p-8 rounded-b-3xl sm:rounded-b-[2rem]">
+            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3"><i class="fa-solid fa-building-columns mr-1.5"></i> Informasi Rekening Transfer</div>
+            <div class="font-bold text-lg sm:text-xl text-charcoal-900 mb-3" id="display_bank_name">Nama Bank</div>
+            <div class="flex shadow-sm rounded-xl mb-3 bg-white border border-gray-200 overflow-hidden">
+               <input type="text" id="display_bank_account" readonly class="w-full px-4 sm:px-5 py-3.5 sm:py-4 bg-transparent text-base sm:text-lg font-bold tracking-widest text-charcoal-800 outline-none cursor-text">
+               <button onclick="copyToClipboard('display_bank_account')" class="bg-charcoal-900 hover:bg-black text-gold-400 px-4 sm:px-6 transition-colors outline-none font-bold text-xs sm:text-sm flex items-center"><i class="fa-regular fa-copy sm:mr-2"></i> <span class="hidden sm:inline">Salin</span></button>
+            </div>
+            <div class="text-[10px] sm:text-xs text-gray-500">Atas Nama: <span id="display_bank_holder" class="font-bold text-charcoal-800">Nama Pemilik</span></div>
+          </div>
+        </div>
+
+        <div class="pt-2 sm:pt-4 space-y-4">
+          <a id="btnConfirmWa" target="_top" href="#" class="w-full bg-[#25D366] hover:bg-[#1ebd5a] text-white font-bold tracking-widest uppercase text-xs sm:text-sm py-4 rounded-2xl active:scale-[0.98] transition-all premium-shadow flex justify-center items-center outline-none group">
+            <i class="fa-brands fa-whatsapp text-xl sm:text-2xl mr-2 sm:mr-3 group-hover:scale-110 transition-transform"></i> Konfirmasi Pembayaran
+          </a>
+          <button type="button" onclick="resetFormView()" class="text-[10px] sm:text-xs font-bold text-gray-400 hover:text-gold-500 uppercase tracking-wider px-4 py-2 outline-none transition-colors">Kembali ke Halaman Utama</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    
+    // ZETTBOT FIX: Gunakan Local Storage Cache agar header langsung muncul tanpa loading
+    let systemBrandName = localStorage.getItem('zett_brand_name') || '', 
+        systemTagline = localStorage.getItem('zett_brand_tagline') || '', 
+        systemContactWa = '', systemBankName = '', systemBankAccount = '', systemBankHolder = '', systemPricelistUrl = ''; 
+    let systemPackages = [], systemAddons = [], systemEvents = [];
+
+    // Tembak langsung ke UI sebelum script Google selesai loading (0 detik delay)
+    if(systemBrandName) $('brandLogo').innerText = systemBrandName;
+    if(systemTagline) $('brandTagline').innerText = systemTagline;
+
+    // MOCK FOR DEV
+    if (!window.google || !google.script) {
+      const mockRunner = (sc, fc) => ({
+        withSuccessHandler: cb => mockRunner(cb, fc),
+        withFailureHandler: cb => mockRunner(sc, cb),
+        addBooking: () => setTimeout(() => sc({success:true, message:'Berhasil!', id:"DEV123"}), 800),
+        getSystemSettings: () => setTimeout(() => sc({brandName:'JOURNEY STUDIO', tagline:'WEDDING PHOTOGRAPHY', contactWa:'081234567890', bankName:'BCA', bankAccount:'1234567890', bankHolder:'Studio', events:['Akad','Resepsi'], packages:[{name:'Paket 1', price:5000000, desc:''}], addons:[{name:'Drone', price:1000000}]}), 500)
+      });
+      window.google = { script: { run: mockRunner(null, null) } };
+    }
+
+    let toastTimeout;
+    const showToast = (message, type = 'success') => {
+      const t = $('toast'), i = $('toast-icon');
+      t.className = `fixed top-20 sm:top-24 right-4 sm:right-8 transform transition-transform duration-500 z-50 flex items-center px-5 sm:px-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl premium-shadow border ${type === 'success' ? 'bg-charcoal-900 text-white border-charcoal-700/50' : 'bg-red-50 text-red-800 border-red-200'}`;
+      i.className = `fa-solid ${type === 'success' ? 'fa-check-circle text-gold-500' : 'fa-circle-exclamation text-red-500'} mr-3 text-lg sm:text-xl`;
+      $('toast-msg').innerText = message;
+      if (toastTimeout) clearTimeout(toastTimeout);
+      t.classList.remove('translate-x-[150%]'); t.classList.add('translate-x-0');
+      toastTimeout = setTimeout(() => { t.classList.remove('translate-x-0'); t.classList.add('translate-x-[150%]'); }, 3000);
+    };
+
+    function updateFormOptions() {
+      const drawSelect = (sel, arr, mapFn) => { document.querySelectorAll(sel).forEach(s => { const v = s.value; s.innerHTML = mapFn; if(v && s.querySelector(`option[value="${v}"]`)) s.value = v; }); };
+      drawSelect('.event-dropdown', systemEvents, '<option value="" disabled selected>-- Pilih Acara --</option>' + systemEvents.filter(e=>e.trim()).map(e=>`<option value="${e}">${e}</option>`).join(''));
+      
+      const pkgs = '<option value="" disabled selected>-- Pilih Paket Eksklusif --</option>' + systemPackages.filter(p=>p.name.trim()).map(p=>`<option value="${p.name}">${p.name}</option>`).join('');
+      if($('paket_dropdown')) $('paket_dropdown').innerHTML = pkgs;
+      
+      const pl = $('client_pricelist_link'); 
+      if(pl) { pl.href = systemPricelistUrl; pl.style.display = systemPricelistUrl ? 'inline-flex' : 'none'; }
+      
+      const addWrap = $('addonSectionWrapper'); 
+      if(addWrap) addWrap.style.display = systemAddons.length > 0 ? 'block' : 'none';
+      drawSelect('.addon-dropdown', systemAddons, '<option value="" selected>-- Tanpa Layanan Tambahan --</option>' + systemAddons.filter(a=>a.name.trim()).map(a=>`<option value="${a.name}" data-price="${a.price}">${a.name} (+ Rp ${a.price.toLocaleString('id-ID')})</option>`).join(''));
+    }
+
+    function addDateField() {
+      const div = document.createElement('div'); div.className = "flex flex-col sm:flex-row gap-3 mt-3 animate-fade-in-up";
+      div.innerHTML = `<select required class="flex-1 w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm font-semibold text-charcoal-800 appearance-none event-dropdown cursor-pointer"><option value="" disabled selected>-- Pilih Jenis Acara --</option>${systemEvents.filter(e=>e.trim()).map(e=>`<option value="${e}">${e}</option>`).join('')}</select><div class="flex gap-3 w-full sm:w-auto flex-1 sm:flex-none"><input type="date" required class="date-input flex-1 w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm font-semibold text-charcoal-800"><button type="button" onclick="this.parentElement.parentElement.remove()" class="px-5 sm:px-6 bg-red-50 text-red-500 rounded-xl hover:bg-red-100 active:scale-95 transition-all outline-none shadow-sm"><i class="fa-solid fa-minus"></i></button></div>`;
+      $('dateContainer').appendChild(div);
+    }
+
+    function addAddonField() {
+      const div = document.createElement('div'); div.className = "flex flex-col sm:flex-row gap-3 mt-3 animate-fade-in-up";
+      div.innerHTML = `<select onchange="updatePrices()" class="flex-1 w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm font-semibold text-charcoal-800 appearance-none addon-dropdown cursor-pointer"><option value="" selected>-- Tanpa Layanan Tambahan --</option>${systemAddons.filter(a=>a.name.trim()).map(a=>`<option value="${a.name}" data-price="${a.price}">${a.name} (+ Rp ${a.price.toLocaleString('id-ID')})</option>`).join('')}</select><button type="button" onclick="this.parentElement.remove(); updatePrices();" class="w-full sm:w-auto px-6 py-3 sm:py-0 bg-red-50 text-red-500 rounded-xl hover:bg-red-100 active:scale-95 transition-all outline-none shadow-sm"><i class="fa-solid fa-minus mr-2 sm:mr-0"></i></button>`;
+      $('addonContainer').appendChild(div);
+    }
+
+    function updatePrices() {
+      const pkg = systemPackages.find(p => p.name === $('paket_dropdown').value); let t = pkg ? pkg.price : 0;
+      document.querySelectorAll('.addon-dropdown').forEach(s => { if(s.selectedIndex > 0) t += parseInt(s.options[s.selectedIndex].getAttribute('data-price')) || 0; });
+      $('total_harga').value = 'Rp ' + t.toLocaleString('id-ID'); 
+      
+      let dp = t * 0.3;
+      $('dp_harga').value = 'Rp ' + dp.toLocaleString('id-ID'); 
+      $('sisa_harga').value = 'Rp ' + (t - dp).toLocaleString('id-ID');
+
+      const dDiv = $('paket_deskripsi_tampil');
+      if(pkg && pkg.desc && pkg.desc.trim() !== '') { dDiv.innerHTML = `<span class="font-bold text-charcoal-800 mr-1"><i class="fa-solid fa-circle-info text-gold-500 mr-1.5"></i> Detail Fasilitas:</span> ${pkg.desc}`; dDiv.classList.remove('hidden'); } 
+      else { dDiv.classList.add('hidden'); dDiv.innerHTML = ''; }
+    }
+
+    function getCurrentLocation() {
+      if(!navigator.geolocation) return showToast('GPS Tidak didukung.', 'error');
+      const b = $('btnLocation'), og = b.innerHTML; b.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i>';
+      navigator.geolocation.getCurrentPosition(p => { $('link_maps_input').value = `https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`; b.innerHTML = og; showToast('Lokasi dilacak!'); }, e => { b.innerHTML = og; showToast('Izin ditolak.', 'error'); }, {enableHighAccuracy: true});
+    }
+
+    function submitForm(event) {
+      event.preventDefault(); const form = event.target, btn = $('submitBtn');
+      const acara = Array.from(form.querySelectorAll('.event-dropdown')).map(el => el.value);
+      const tanggal = Array.from(form.querySelectorAll('.date-input')).map(el => el.value);
+      let pkt = $('paket_dropdown').value, addons = [];
+      
+      Array.from(form.querySelectorAll('.addon-dropdown')).forEach(s => { if(s.value) addons.push(s.value); });
+      if (addons.length > 0) pkt += ` (+ Add-ons: ${addons.join(', ')})`;
+      
+      let dpStr = $('dp_harga').value;
+
+      const data = { 
+        nama: $('bf_nama').value, 
+        whatsapp: $('bf_whatsapp').value, 
+        email: $('bf_email').value, 
+        alamat: $('bf_alamat').value, 
+        link_maps: $('link_maps_input').value, 
+        total_harga: $('total_harga').value, 
+        dp: dpStr, 
+        sisa: $('sisa_harga').value, 
+        paket: pkt, 
+        tanggal: acara.map((a, i) => `${a}: ${tanggal[i]}`).join(' | ') 
+      };
+
+      btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i> <span class="ml-2">Memproses...</span>';
+
+      google.script.run.withSuccessHandler(res => {
+        if(res.success) {
+           form.reset(); 
+           $('dateContainer').innerHTML = `<div class="flex flex-col sm:flex-row gap-3"><select required class="flex-1 w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm font-semibold text-charcoal-800 appearance-none event-dropdown cursor-pointer"><option value="" disabled selected>-- Pilih Acara --</option></select><div class="flex gap-3 w-full sm:w-auto flex-1 sm:flex-none"><input type="date" required class="flex-1 w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm font-semibold text-charcoal-800"><button type="button" onclick="this.parentElement.parentElement.remove()" class="px-5 sm:px-6 bg-red-50 text-red-500 rounded-xl hover:bg-red-100"><i class="fa-solid fa-minus"></i></button></div></div>`;
+           if($('addonSectionWrapper') && $('addonSectionWrapper').style.display !== 'none') $('addonContainer').innerHTML = `<div class="flex flex-col sm:flex-row gap-3"><select onchange="updatePrices()" class="flex-1 w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl outline-none text-sm font-semibold text-charcoal-800 appearance-none addon-dropdown"><option value="" selected>-- Tanpa Layanan --</option></select></div>`;
+           updateFormOptions(); updatePrices(); 
+           
+           try { 
+             const newBookingLocal = {
+               id: res.id, timestamp: new Date().toLocaleString('id-ID'), nama: data.nama, whatsapp: data.whatsapp, email: data.email,
+               tanggal: data.tanggal, paket: data.paket, status: 'Pending', progress: '1_booking',
+               selectedPhotosCount: 0, folderUrl: '', teamData: '[]', financeData: '{}',
+               alamat: data.alamat, link_maps: data.link_maps, total_harga: data.total_harga, dp: data.dp, sisa: data.sisa
+             };
+             localStorage.setItem('zett_new_booking', JSON.stringify(newBookingLocal));
+             localStorage.setItem('zett_sync_booking', Date.now().toString()); 
+           } catch(e){}
+
+           $('bookingFormContainer').classList.add('hidden'); 
+           $('paymentSuccessContainer').classList.remove('hidden');
+           $('pay_booking_id').innerText = res.id; 
+           $('pay_dp_amount').innerText = data.dp; 
+           $('display_bank_name').innerText = systemBankName; 
+           $('display_bank_account').value = systemBankAccount; 
+           $('display_bank_holder').innerText = systemBankHolder;
+           
+           // ZETTBOT FIX: Optimalisasi Link WA agar selalu bisa dibuka dari HP
+           let waStr = String(systemContactWa).replace(/\D/g, '');
+           if(waStr.startsWith('0')) waStr = '62' + waStr.slice(1);
+           
+           let msg = `Halo Admin ${systemBrandName}, saya konfirmasi DP.\n\n*ID:* ${res.id}\n*Nama:* ${data.nama}\n*Paket:* ${data.paket}\n*Total:* ${data.total_harga}\n*DP:* ${data.dp}\n*Sisa:* ${data.sisa}\n\nBerikut bukti transfer:`;
+           $('btnConfirmWa').href = `https://api.whatsapp.com/send?phone=${waStr}&text=${encodeURIComponent(msg)}`;
+           
+           if (typeof confetti === 'function') confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#D4AF37', '#C5A059', '#1A1A1A', '#ffffff'] });
+        } else {
+           showToast(res.message, 'error');
+        }
+        btn.disabled = false; btn.innerHTML = '<span class="group-hover:-translate-y-0.5 transition-transform duration-300">Ajukan Reservasi Sekarang</span>';
+      }).withFailureHandler(err => { 
+        showToast('Koneksi gagal. ' + err.message, 'error'); 
+        btn.disabled = false; btn.innerHTML = '<span class="group-hover:-translate-y-0.5 transition-transform duration-300">Ajukan Reservasi Sekarang</span>'; 
+      }).addBooking(data);
+    }
+    
+    function resetFormView() { 
+        $('paymentSuccessContainer').classList.add('hidden'); 
+        $('bookingFormContainer').classList.remove('hidden'); 
+        const btn = $('submitBtn');
+        if(btn) {
+           btn.disabled = false;
+           btn.innerHTML = '<span class="group-hover:-translate-y-0.5 transition-transform duration-300">Ajukan Reservasi Sekarang</span>';
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' }); 
+    }
+
+    function copyToClipboard(elementId) {
+      const copyText = $(elementId); copyText.select(); copyText.setSelectionRange(0, 99999); document.execCommand("copy"); showToast('Tautan disalin!', 'success');
+    }
+
+    window.onload = () => {
+       if (typeof google !== 'undefined' && google.script) {
+         google.script.run.withSuccessHandler(settings => {
+           if (settings) {
+              if(settings.brandName) {
+                 systemBrandName = settings.brandName;
+                 localStorage.setItem('zett_brand_name', systemBrandName);
+              }
+              if(settings.tagline) {
+                 systemTagline = settings.tagline;
+                 localStorage.setItem('zett_brand_tagline', systemTagline);
+              }
+              if(settings.contactWa) systemContactWa = settings.contactWa;
+              if(settings.bankName) systemBankName = settings.bankName;
+              if(settings.bankAccount) systemBankAccount = settings.bankAccount;
+              if(settings.bankHolder) systemBankHolder = settings.bankHolder;
+              if(settings.pricelistUrl) systemPricelistUrl = settings.pricelistUrl;
+              if(settings.events) systemEvents = settings.events;
+              if(settings.packages) systemPackages = settings.packages;
+              if(settings.addons) systemAddons = settings.addons;
+           }
+           $('brandLogo').innerText = systemBrandName;
+           $('brandTagline').innerText = systemTagline;
+           updateFormOptions();
+         }).getSystemSettings();
+       }
+    };
+  </script>
+</body>
+</html>
